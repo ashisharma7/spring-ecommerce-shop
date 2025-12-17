@@ -1,0 +1,33 @@
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== IDEs =====
+.idea/
+.vscode/
+*.iml
+
+# ===== Java / Spring Boot =====
+target/
+build/
+out/
+*.log
+
+# ===== Node / React =====
+node_modules/
+dist/
+.next/
+
+# ===== Environment / Secrets =====
+.env
+.env.*
+*.secret
+*.key
+
+# ===== Docker =====
+*.pid
+docker-compose.override.yml
+
+# ===== Misc =====
+coverage/
+tmp/
