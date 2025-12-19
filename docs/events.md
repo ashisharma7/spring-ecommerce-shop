@@ -6,13 +6,17 @@ The system uses a **Choreography-based Saga** for Order Fulfillment. There is no
 ## 2. Topic & Event Definitions
 
 | Topic Name | Event Name | Producer Service | Consumer Service | Payload (Key Fields) |
-| :--- | :--- | :--- | :--- | :--- |
-| `order-events` | `OrderCreatedEvent` | **Order** | Inventory, Cart | `orderId`, `itemsList`, `userId` |
-| `order-events` | `OrderCancelledEvent` | **Order** | Inventory | `orderId`, `reason` |
-| `inventory-events` | `InventoryReservedEvent` | **Inventory** | Payment | `orderId`, `totalAmount` |
-| `inventory-events` | `StockReservationFailedEvent` | **Inventory** | Order | `orderId`, `reason` |
-| `payment-events` | `PaymentSuccessEvent` | **Payment** | Order | `orderId`, `paymentId` |
+| :--- | :--- | :--- |:-----------------| :--- |
+| `order-events` | `OrderCreatedEvent` | **Order** | Inventory        | `orderId`, `itemsList`, `userId` |
+| `order-events` | `OrderCancelledEvent` | **Order** | Inventory        | `orderId`, `reason` |
+| `inventory-events` | `InventoryReservedEvent` | **Inventory** | Payment          | `orderId`, `totalAmount` |
+| `inventory-events` | `StockReservationFailedEvent` | **Inventory** | Order            | `orderId`, `reason` |
+| `payment-events` | `PaymentSuccessEvent` | **Payment** | Order            | `orderId`, `paymentId` |
 | `payment-events` | `PaymentFailedEvent` | **Payment** | Order, Inventory | `orderId`, `reason` |
+
+> **Note:**  
+>- Cart Service does not participate in the saga.
+>- Cart is cleared synchronously during order placement and does not consume Kafka events.
 
 ## 3. Failure & Rollback Scenarios
 - **If Stock Fails:** Inventory emits `StockReservationFailed` -> Order Service sets status to `CANCELLED`.

@@ -27,34 +27,21 @@ Since Redis is a NoSQL store, we define the **Object Structure** (Java Class) ra
 
 ---
 
-## 3. Kafka Event Strategy
-The Cart Service acts as a **Listener** to clean up data after a purchase.
-
-### 📥 Consumed Events (What it hears)
-| Event Name | Source | Action Taken |
-| :--- | :--- | :--- |
-| `OrderCreatedEvent` | Order Service | **Clear Cart:** Identify the `userId` from the event payload and delete their cart key (`cart:{userId}`) from Redis. |
-
-### 📤 Produced Events
-*None for now.* (The Cart Service does not emit events in V1).
-
----
-
-## 4. API Endpoints
+## 3. API Endpoints
 All endpoints are secured and require the `ROLE_USER` authority. The `userId` is extracted automatically from the JWT Token (Principal).
 
 ### User Operations (`ROLE_USER`)
 
-| Method | Endpoint | Description | Payload Example |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/cart` | Get current user's cart | - |
-| `POST` | `/api/cart/items` | Add/Update item in cart | `{ "productId": "p-101", "quantity": 1 }` |
-| `DELETE` | `/api/cart/items/{productId}` | Remove specific item | - |
-| `DELETE` | `/api/cart` | Clear entire cart (Manual) | - |
+| Method | Endpoint | Description                              | Payload Example |
+| :--- | :--- |:-----------------------------------------| :--- |
+| `GET` | `/api/cart` | Get current user's cart                  | - |
+| `POST` | `/api/cart/items` | Add/Update item in cart                  | `{ "productId": "p-101", "quantity": 1 }` |
+| `DELETE` | `/api/cart/items/{productId}` | Remove specific item                     | - |
+| `DELETE` | `/api/cart` | Clear entire cart (Manual/Order Service) | - |
 
 ---
 
-## 5. External Integrations
+## 4. External Integrations
 
 ### Inventory Service
 The Cart Service communicates **Synchronously** (via Feign Client / REST) with the Inventory Service to validate stock availability in real-time.
@@ -67,7 +54,16 @@ The Cart Service communicates **Synchronously** (via Feign Client / REST) with t
     3. Call Inventory Service batch check.
     4. If any item has `quantity < requested`, mark it as "Out of Stock" in the UI response (but do not delete it from Redis automatically).
 
-## 6. Technology Stack
+
+> **Note**: Cart Service performs synchronous availability checks with Inventory Service only for UI feedback purposes (e.g., showing out-of-stock items).
+>- These checks are advisory and do NOT:
+>- reserve inventory 
+>- guarantee availability 
+>- participate in order validation  
+>
+>Final stock validation is performed asynchronously by Inventory Service as part of the order saga.
+
+## 5. Technology Stack
 - **Database:** Redis (Alpine Image)
 - **Library:** Spring Data Redis
 - **Serialization:** Jackson (JSON)

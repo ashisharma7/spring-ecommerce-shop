@@ -49,8 +49,7 @@ This entity tracks the physical stock count. It uses **Optimistic Locking** to h
     - **Payload:** List of Product IDs `["id-1", "id-2"]`.
     - **Response:** Map of ID to Quantity `{"id-1": 10, "id-2": 0}`.
     - **Type:** Synchronous (REST).
-- `POST /api/inventory/reserve` - Triggered by Order Service.
-- `POST /api/inventory/release` - Triggered by Payment Failure.
 
 ## 5. Data Storage
-- **Primary:** PostgreSQL (`inventory_db`), Tables (`inventory`)
+- **Primary:** PostgreSQL (`inventory_db`)
+- **Tables:** (`inventory`)

@@ -28,9 +28,6 @@ The system relies on a **Choreography Saga** to process orders without direct HT
     - *Success:* Updates status to `CONFIRMED`
     - *Fail:* Updates status to `CANCELLED`
 
-### Other Event Flows
-- **Cart Cleanup:** Cart Service listens to `OrderCreatedEvent` to delete the user's cart items after purchase.
-
 ---
 
 ## 3. Security Architecture (Identity)

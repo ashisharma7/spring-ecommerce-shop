@@ -25,4 +25,5 @@ Stores the transaction attempt result.
 - **Internal Only:** `POST /api/payments/process` (Attempt to charge).
 
 ## 5. Data Storage
-- **Primary:** PostgreSQL (`payment_db`), Tables (`payments`)
+- **Primary:** PostgreSQL (`payment_db`)
+- **Tables:** (`payments`)

@@ -41,5 +41,6 @@ Allows hierarchical organization (e.g., Electronics -> Mobile Phones).
 - `DELETE /api/products/{id}` - Soft delete a product.
 
 ## 4. Data Storage
-- **Primary:** PostgreSQL (`catalog_db`), Tables (`categories`,`products`)
+- **Primary:** PostgreSQL (`catalog_db`)
+- **Tables:** (`categories`,`products`)
 - **Caching:** (Future) Redis for `GET /api/products/{id}`.
