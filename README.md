@@ -74,11 +74,11 @@ Detailed architectural decisions are documented in the `docs/` directory.
 * [**API Gateway & Routing**](docs/service-gateway.md) - Edge Server specs.
 
 ### Service Contracts
-* [**Catalog Service**](docs/service-catalog.md) - Product domain.
-* [**Order Service**](docs/service-order.md) - Saga orchestration.
-* [**Inventory Service**](docs/service-inventory.md) - Stock & Concurrency.
-* [**Cart Service**](docs/service-cart.md) - Redis caching strategy.
-* [**Payment Service**](docs/service-payment.md) - Mock payment logic.
+* [**Catalog Service**](docs/service/service-catalog.md) - Product domain.
+* [**Order Service**](docs/service/service-order.md) - Saga orchestration.
+* [**Inventory Service**](docs/service/service-inventory.md) - Stock & Concurrency.
+* [**Cart Service**](docs/service/service-cart.md) - Redis caching strategy.
+* [**Payment Service**](docs/service/service-payment.md) - Mock payment logic.
 
 ---
 
