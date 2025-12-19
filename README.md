@@ -89,13 +89,12 @@ Detailed architectural decisions are documented in the `docs/` directory.
 * Java 21 JDK
 * Maven
 
-### 1. Start Infrastructure
+### Start Infrastructure
 Run the helper script to spin up the databases and Kafka:
 ```bash
 sh scripts/infra-up.sh
 sh scripts/build-all.sh
-
----
+```
 
 ## Author
 Ashish Sharma  
