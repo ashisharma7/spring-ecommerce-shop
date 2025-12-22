@@ -3,7 +3,6 @@ package com.shop.order.service.impl;
 import com.shop.order.service.OrderCommandService;
 import com.shop.order.web.dto.CreateOrderRequest;
 import com.shop.order.web.dto.CreateOrderResponse;
-import jakarta.el.MethodNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
