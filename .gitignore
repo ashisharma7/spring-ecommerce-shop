@@ -33,8 +33,6 @@ docker-compose.override.yml
 # ===== Misc =====
 coverage/
 tmp/
-.mvn/
-Help.md
 
 ### STS ###
 .apt_generated
