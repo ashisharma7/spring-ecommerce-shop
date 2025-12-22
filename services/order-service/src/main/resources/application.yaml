@@ -1,12 +1,17 @@
 server:
   port: 8081
 
+logging:
+  level:
+    org.springframework.jdbc.datasource: DEBUG
+    com.zaxxer.hikari: DEBUG
+
 spring:
   application:
     name: Order-Service
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/order_db}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/order_db}
     username: ${DB_USERNAME:order_user}
     password: ${DB_PASSWORD:order_pass}
     driver-class-name: org.postgresql.Driver
@@ -17,11 +22,11 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         jdbc:
           time_zone: UTC
 
   jackson:
     time-zone: UTC
-    serialization:
-      write-dates-as-timestamps: false
+    write-dates-as-timestamps: false
