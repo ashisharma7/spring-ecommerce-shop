@@ -19,3 +19,6 @@ future maintainers and reviewers.
 
 Each ADR is immutable once accepted. If a decision changes, a new ADR
 should be created to supersede the previous one.
+
+Configuration details, bug fixes, and setup milestones are intentionally
+not captured as ADRs unless they introduce long-term architectural constraints.
