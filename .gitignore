@@ -6,6 +6,8 @@ Thumbs.db
 .idea/
 .vscode/
 *.iml
+*.iws
+*.ipr
 
 # ===== Java / Spring Boot =====
 target/
@@ -31,3 +33,14 @@ docker-compose.override.yml
 # ===== Misc =====
 coverage/
 tmp/
+.mvn/
+Help.md
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
