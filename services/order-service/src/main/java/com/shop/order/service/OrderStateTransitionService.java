@@ -3,5 +3,5 @@ package com.shop.order.service;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderStateTransitionService {
+public interface OrderStateTransitionService {
 }
