@@ -68,12 +68,21 @@ This ensures historical correctness even if catalog data changes later.
 
 ### User Endpoints (`ROLE_USER`)
 - `POST /api/orders` — Place a new order (clears Cart synchronously).
+  - Client sends `productId` and `quantity` only
+  - Pricing is fetched synchronously from Catalog Service
 - `GET /api/orders` — Retrieve **my** order history.
 - `GET /api/orders/{id}` — Retrieve details of a specific order.
 
 ### Admin Endpoints (`ROLE_ADMIN`)
 - `GET /api/admin/orders` — View all orders.
 - `PUT /api/admin/orders/{id}/status` — Force update order status (manual intervention).
+
+### Catalog Dependency (Synchronous)
+During order creation, Order Service synchronously calls Catalog Service to:
+- Validate product existence
+- Fetch current product name and price
+
+Order creation fails if Catalog Service is unavailable or returns invalid data.
 
 ---
 
@@ -117,6 +126,7 @@ This ensures historical correctness even if catalog data changes later.
 
 The Order Service does **not**:
 - Validate inventory availability synchronously
+- Accept or trust client-provided pricing
 - Process payments
 - Manage cart state asynchronously
 - Access other service databases
@@ -128,6 +138,6 @@ All such responsibilities belong to their respective services.
 ## 9. Summary
 
 - Order Service is the **Saga Initiator and State Authority**
-- Communication is **event-driven**
+- Order creation is **synchronous with Catalog**, lifecycle is **event-driven**
 - Business invariants are enforced via state transitions
 - The design favors decoupling, resilience, and correctness

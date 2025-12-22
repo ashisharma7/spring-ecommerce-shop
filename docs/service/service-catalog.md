@@ -40,6 +40,13 @@ Allows hierarchical organization (e.g., Electronics -> Mobile Phones).
 - `PUT /api/products/{id}` - Update product details.
 - `DELETE /api/products/{id}` - Soft delete a product.
 
+### Internal Endpoints (Service-to-Service)
+
+#### Price & Product Lookup (Order Service)
+- `POST /internal/catalog/products/price-check` 
+  - Used by **Order Service** during order creation to fetch
+    current product information.
+
 ## 4. Data Storage
 - **Primary:** PostgreSQL (`catalog_db`)
 - **Tables:** (`categories`,`products`)
