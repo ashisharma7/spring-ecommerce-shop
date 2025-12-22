@@ -16,8 +16,8 @@ The system follows the **Database-per-Service** pattern. Each service owns its d
 
 ### 🔌 Service Registry & Ports
 
-| Service                    | Port | Database | Responsibilities |
-|:---------------------------| :--- | :--- | :--- |
+| Service                    | Port   | Database | Responsibilities |
+|:---------------------------|:-------| :--- | :--- |
 | **API Gateway**            | `8080` | - | Routing, Rate Limiting, JWT Validation. |
 | **Catalog Service**        | `8081` | PostgreSQL | Product Management (Source of Truth). |
 | **Cart Service**           | `8082` | Redis | Temporary User Sessions (High-speed write). |
@@ -25,7 +25,7 @@ The system follows the **Database-per-Service** pattern. Each service owns its d
 | **Inventory Service**      | `8084` | PostgreSQL | Stock Management, Optimistic Locking. |
 | **Payment Service**        | `8085` | PostgreSQL | **Mock** Provider (Simulates Stripe/Razorpay). |
 | **Keycloak**               | `8180` | PostgreSQL | Identity Provider (Auth Server). |
-| **PostgreSQL**             | `5432` | DB | Primary Database (All Schemas). |
+| **PostgreSQL**             | `5433` | DB | Primary Database (All Schemas). |
 | **Redis**                  | `6379` | Cache | Cart Data & Caching. |
 | **Kafka**                  | `9092` | Broker | Event Streaming. |
 | **Zipkin(Planned)**        | `9411` | Tool | Distributed Tracing UI. |
@@ -46,7 +46,7 @@ Authentication is handled by **Keycloak** (OAuth2 / OIDC). Services do not handl
 
 ### Backend & Core
 * **Language:** Java 21
-* **Framework:** Spring Boot 3.3
+* **Framework:** Spring Boot 4.0.0
 * **Build Tool:** Maven
 
 ### Infrastructure (Local Cloud)
