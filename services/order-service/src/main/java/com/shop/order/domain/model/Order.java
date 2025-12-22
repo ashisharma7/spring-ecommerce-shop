@@ -36,7 +36,7 @@ public class Order {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItem> orderItems;
 
     //Domain helper methods
     public void addItem(OrderItem orderItem){
@@ -58,6 +58,7 @@ public class Order {
 
     @PrePersist
     public void onCreate(){
+        orderItems = new ArrayList<>();
         this.createdAt = Instant.now();
     }
 }
