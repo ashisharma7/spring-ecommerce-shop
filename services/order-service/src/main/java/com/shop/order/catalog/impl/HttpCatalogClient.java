@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @Component
 public class HttpCatalogClient implements CatalogClient {
-    private static final String CATALOG_PRODUCT_CHECK_ENDPOINT = "/internal/catalog/products/price-check";
+    private static final String CATALOG_PRODUCT_CHECK_ENDPOINT = "/internal/catalog/products/info";
     private final RestClient restClient;
 
     public HttpCatalogClient(RestClient.Builder builder,

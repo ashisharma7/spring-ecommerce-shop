@@ -43,7 +43,7 @@ Allows hierarchical organization (e.g., Electronics -> Mobile Phones).
 ### Internal Endpoints (Service-to-Service)
 
 #### Price & Product Lookup (Order Service)
-- `POST /internal/catalog/products/price-check` 
+- `POST /internal/catalog/products/info` 
   - Used by **Order Service** during order creation to fetch
     current product information.
 
