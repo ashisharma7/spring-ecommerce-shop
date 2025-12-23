@@ -26,11 +26,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(
-                        "VALIDATION_ERROR",
-                        errors,
-                        Instant.now()
-                ));
+                .body(ErrorResponse.validationError(errors));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -39,11 +35,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(
-                        "VALIDATION_ERROR",
-                        List.of(ex.getMessage()),
-                        Instant.now()
-                ));
+                .body(ErrorResponse.validationError(List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(Exception.class)
@@ -51,10 +43,6 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        "INTERNAL_SERVER_ERROR",
-                        List.of("Something went wrong"),
-                        Instant.now()
-                ));
+                .body(ErrorResponse.internalServerError(List.of("Something went wrong")));
     }
 }
