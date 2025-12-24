@@ -5,10 +5,10 @@ import java.util.List;
 
 public record ErrorResponse(
         ErrorCode error,
-        List<String> messages,
+        String messages,
         Instant timestamp
 ) {
-    public static ErrorResponse validationError(List<String> messages) {
+    public static ErrorResponse validationError(String messages) {
         return new ErrorResponse(
                 ErrorCode.VALIDATION_ERROR,
                 messages,
@@ -16,7 +16,7 @@ public record ErrorResponse(
         );
     }
 
-    public static ErrorResponse catalogUnavailableError(List<String> messages) {
+    public static ErrorResponse catalogUnavailableError(String messages) {
         return new ErrorResponse(
                 ErrorCode.CATALOG_UNAVAILABLE,
                 messages,
@@ -24,7 +24,7 @@ public record ErrorResponse(
         );
     }
 
-    public static ErrorResponse orderNotFoundError(List<String> messages) {
+    public static ErrorResponse orderNotFoundError(String messages) {
         return new ErrorResponse(
                 ErrorCode.ORDER_NOT_FOUND,
                 messages,
@@ -32,7 +32,7 @@ public record ErrorResponse(
         );
     }
 
-    public static ErrorResponse productNotFoundError(List<String> messages) {
+    public static ErrorResponse productNotFoundError(String messages) {
         return new ErrorResponse(
                 ErrorCode.PRODUCT_NOT_FOUND,
                 messages,
@@ -40,7 +40,7 @@ public record ErrorResponse(
         );
     }
 
-    public static ErrorResponse internalServerError(List<String> messages) {
+    public static ErrorResponse internalServerError(String messages) {
         return new ErrorResponse(
                 ErrorCode.INTERNAL_SERVER_ERROR,
                 messages,

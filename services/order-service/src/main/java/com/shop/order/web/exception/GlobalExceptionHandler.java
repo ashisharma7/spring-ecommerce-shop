@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,54 +23,54 @@ public class GlobalExceptionHandler {
     public ResponseEntity<@NonNull ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex) {
 
-        List<String> errors = ex.getBindingResult()
+        String errorMessages = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .toList();
+                .collect(Collectors.joining(",\n"));
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.validationError(errors));
+                .body(ErrorResponse.validationError(errorMessages));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.validationError(List.of(ex.getMessage())));
+                .body(ErrorResponse.validationError(ex.getMessage()));
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleProductNotFound(ProductNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.productNotFoundError(List.of(ex.getMessage())));
+                .body(ErrorResponse.productNotFoundError(ex.getMessage()));
     }
 
     @ExceptionHandler(CatalogUnavailableException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleCatalogUnavailable(CatalogUnavailableException ex) {
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(ErrorResponse.catalogUnavailableError(List.of(ex.getMessage())));
+                .body(ErrorResponse.catalogUnavailableError(ex.getMessage()));
     }
 
     @ExceptionHandler(EventPublishingException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleEventPublishingException(EventPublishingException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.internalServerError(List.of(ex.getMessage())));
+                .body(ErrorResponse.internalServerError(ex.getMessage()));
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleOrderNotFound(OrderNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.orderNotFoundError(List.of(ex.getMessage())));
+                .body(ErrorResponse.orderNotFoundError(ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<@NonNull ErrorResponse> handleGenericException(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.internalServerError(List.of("Something went wrong", ex.getMessage())));
+                .body(ErrorResponse.internalServerError(ex.getMessage()));
     }
 }
