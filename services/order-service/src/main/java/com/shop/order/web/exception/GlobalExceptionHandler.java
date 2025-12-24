@@ -2,6 +2,7 @@ package com.shop.order.web.exception;
 
 import com.shop.order.catalog.exception.CatalogUnavailableException;
 import com.shop.order.catalog.exception.ProductNotFoundException;
+import com.shop.order.domain.exception.EventPublishingException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
@@ -32,35 +33,34 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<@NonNull ErrorResponse> handleConstraintViolation(
-            ConstraintViolationException ex) {
-
+    public ResponseEntity<@NonNull ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.validationError(List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<@NonNull ErrorResponse> handleProductNotFound(
-            ProductNotFoundException ex) {
-
+    public ResponseEntity<@NonNull ErrorResponse> handleProductNotFound(ProductNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.productNotFoundError(List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(CatalogUnavailableException.class)
-    public ResponseEntity<@NonNull ErrorResponse> handleCatalogUnavailable(
-            CatalogUnavailableException ex) {
-
+    public ResponseEntity<@NonNull ErrorResponse> handleCatalogUnavailable(CatalogUnavailableException ex) {
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(ErrorResponse.catalogUnavailableError(List.of(ex.getMessage())));
     }
 
+    @ExceptionHandler(EventPublishingException.class)
+    public ResponseEntity<@NonNull ErrorResponse> handleEventPublishingException(EventPublishingException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.internalServerError(List.of(ex.getMessage())));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<@NonNull ErrorResponse> handleGenericException(Exception ex) {
-
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.internalServerError(List.of("Something went wrong", ex.getMessage())));

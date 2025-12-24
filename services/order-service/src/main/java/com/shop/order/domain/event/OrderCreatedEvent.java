@@ -1,7 +1,16 @@
 package com.shop.order.domain.event;
 
-import org.springframework.context.annotation.Configuration;
+import java.math.BigDecimal;
+import java.util.List;
 
-@Configuration
-public class OrderCreatedEvent {
+public record OrderCreatedEvent(
+        String orderId,
+        String userId,
+        BigDecimal totalAmount,
+        List<OrderItemEvent> items
+) {
+    public record OrderItemEvent(
+            String productId,
+            int quantity
+    ) {}
 }

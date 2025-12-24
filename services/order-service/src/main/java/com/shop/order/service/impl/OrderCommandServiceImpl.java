@@ -4,6 +4,8 @@ import com.shop.order.catalog.CatalogClient;
 import com.shop.order.catalog.dto.CatalogProductRequest;
 import com.shop.order.catalog.dto.CatalogProductResponse;
 import com.shop.order.catalog.exception.ProductNotFoundException;
+import com.shop.order.domain.event.OrderCreatedEvent;
+import com.shop.order.domain.event.OrderEventPublisher;
 import com.shop.order.domain.exception.InvalidOrderStateException;
 import com.shop.order.domain.model.Order;
 import com.shop.order.domain.model.OrderItem;
@@ -31,6 +33,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private final OrderRepository orderRepository;
     private final CatalogClient catalogClient;
     private final OrderMapper orderMapper;
+    private final OrderEventPublisher orderEventPublisher;
 
     @Override
     @Transactional
@@ -40,6 +43,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         List<OrderItem> orderItems = buildOrderItems(createOrderRequest, catalogProductDataMap);
         Order order = Order.create(createOrderRequest.userId(), orderItems);
         Order savedOrder = orderRepository.save(order);
+        publishOrderCreatedEvent(savedOrder);
         log.info("Order created for user: {} with order id: {}", createOrderRequest.userId(), savedOrder.getId());
         return orderMapper.toCreateOrderResponse(savedOrder);
     }
@@ -76,6 +80,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         if (productData.price().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidOrderStateException("Invalid price for product: " + productId);
         }
+    }
+
+    private void publishOrderCreatedEvent(Order savedOrder) {
+        OrderCreatedEvent event = orderMapper.toOrderCreatedEvent(savedOrder);
+        orderEventPublisher.publishOrderCreated(event);
     }
 
 }
