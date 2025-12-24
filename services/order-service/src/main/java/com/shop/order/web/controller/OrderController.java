@@ -1,10 +1,8 @@
 package com.shop.order.web.controller;
 
 import com.shop.order.service.OrderCommandService;
-import com.shop.order.web.dto.CancelOrderRequest;
-import com.shop.order.web.dto.CancelOrderResponse;
-import com.shop.order.web.dto.CreateOrderRequest;
-import com.shop.order.web.dto.CreateOrderResponse;
+import com.shop.order.service.OrderQueryService;
+import com.shop.order.web.dto.*;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderCommandService orderCommandService;
+    private final OrderQueryService orderQueryService;
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<@NonNull OrderResponse> getOrder(@PathVariable String orderId) {
+        OrderResponse response = orderQueryService.getOrderById(orderId);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping
     public ResponseEntity<@NonNull CreateOrderResponse> createOrder(
