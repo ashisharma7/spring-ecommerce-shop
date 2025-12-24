@@ -24,6 +24,14 @@ public record ErrorResponse(
         );
     }
 
+    public static ErrorResponse orderNotFoundError(List<String> messages) {
+        return new ErrorResponse(
+                ErrorCode.ORDER_NOT_FOUND,
+                messages,
+                Instant.now()
+        );
+    }
+
     public static ErrorResponse productNotFoundError(List<String> messages) {
         return new ErrorResponse(
                 ErrorCode.PRODUCT_NOT_FOUND,

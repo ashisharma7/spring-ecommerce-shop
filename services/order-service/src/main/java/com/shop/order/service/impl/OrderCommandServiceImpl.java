@@ -4,16 +4,16 @@ import com.shop.order.catalog.CatalogClient;
 import com.shop.order.catalog.dto.CatalogProductRequest;
 import com.shop.order.catalog.dto.CatalogProductResponse;
 import com.shop.order.catalog.exception.ProductNotFoundException;
+import com.shop.order.domain.event.OrderCancelledEvent;
 import com.shop.order.domain.event.OrderCreatedEvent;
 import com.shop.order.domain.event.OrderEventPublisher;
 import com.shop.order.domain.exception.InvalidOrderStateException;
+import com.shop.order.domain.exception.OrderNotFoundException;
 import com.shop.order.domain.model.Order;
 import com.shop.order.domain.model.OrderItem;
 import com.shop.order.repository.OrderRepository;
 import com.shop.order.service.OrderCommandService;
-import com.shop.order.web.dto.CreateOrderItemRequest;
-import com.shop.order.web.dto.CreateOrderRequest;
-import com.shop.order.web.dto.CreateOrderResponse;
+import com.shop.order.web.dto.*;
 import com.shop.order.web.mapper.OrderMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,23 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         publishOrderCreatedEvent(savedOrder);
         log.info("Order created for user: {} with order id: {}", createOrderRequest.userId(), savedOrder.getId());
         return orderMapper.toCreateOrderResponse(savedOrder);
+    }
+
+    @Override
+    @Transactional
+    public CancelOrderResponse cancelOrder(CancelOrderRequest cancelOrderRequest) {
+        var orderId = cancelOrderRequest.orderId();
+        var reason = cancelOrderRequest.reason();
+        log.info("Cancelling order {} Reason: {}", orderId, reason);
+        Order order = orderRepository.findById(UUID.fromString(orderId))
+                .orElseThrow(() -> new OrderNotFoundException("No order exists with ID: "+ orderId));
+        order.cancel();
+        Order savedOrder = orderRepository.save(order);
+        OrderCancelledEvent event = orderMapper.toOrderCancelledEvent(savedOrder, reason);
+        orderEventPublisher.publishOrderCancelled(event);
+
+        log.info("Order {} cancelled successfully.", orderId);
+        return orderMapper.toCancelOrderResponse(savedOrder, reason);
     }
 
     private Map<String, CatalogProductResponse> fetchCatalogData(CreateOrderRequest createOrderRequest) {

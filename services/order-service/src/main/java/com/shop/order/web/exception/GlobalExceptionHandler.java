@@ -3,6 +3,7 @@ package com.shop.order.web.exception;
 import com.shop.order.catalog.exception.CatalogUnavailableException;
 import com.shop.order.catalog.exception.ProductNotFoundException;
 import com.shop.order.domain.exception.EventPublishingException;
+import com.shop.order.domain.exception.OrderNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<@NonNull ErrorResponse> handleEventPublishingException(EventPublishingException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.internalServerError(List.of(ex.getMessage())));
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<@NonNull ErrorResponse> handleOrderNotFound(OrderNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.orderNotFoundError(List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(Exception.class)

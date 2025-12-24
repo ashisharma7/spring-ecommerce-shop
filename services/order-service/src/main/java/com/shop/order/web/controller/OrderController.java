@@ -1,6 +1,8 @@
 package com.shop.order.web.controller;
 
 import com.shop.order.service.OrderCommandService;
+import com.shop.order.web.dto.CancelOrderRequest;
+import com.shop.order.web.dto.CancelOrderResponse;
 import com.shop.order.web.dto.CreateOrderRequest;
 import com.shop.order.web.dto.CreateOrderResponse;
 import jakarta.validation.Valid;
@@ -8,10 +10,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/orders")
@@ -28,6 +27,16 @@ public class OrderController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createOrderResponse);
+    }
+
+    @PostMapping("/cancel")
+    public ResponseEntity<@NonNull CancelOrderResponse> cancelOrder(
+            @Valid @RequestBody CancelOrderRequest cancelOrderRequest
+    ){
+        CancelOrderResponse cancelOrderResponse = orderCommandService.cancelOrder(cancelOrderRequest);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(cancelOrderResponse);
     }
 
 }

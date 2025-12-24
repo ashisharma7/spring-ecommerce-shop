@@ -1,9 +1,11 @@
 package com.shop.order.web.mapper;
 
 import com.shop.order.catalog.dto.CatalogProductResponse;
+import com.shop.order.domain.event.OrderCancelledEvent;
 import com.shop.order.domain.event.OrderCreatedEvent;
 import com.shop.order.domain.model.Order;
 import com.shop.order.domain.model.OrderItem;
+import com.shop.order.web.dto.CancelOrderResponse;
 import com.shop.order.web.dto.CreateOrderItemRequest;
 import com.shop.order.web.dto.CreateOrderResponse;
 import org.mapstruct.Mapper;
@@ -32,4 +34,10 @@ public interface OrderMapper {
     @Mapping(target = "reason", source = "reason")
     @Mapping(target = "cancelledAt", expression = "java(java.time.Instant.now())")
     OrderCancelledEvent toOrderCancelledEvent(Order order, String reason);
+
+    @Mapping(target = "orderId", expression = "java(order.getId().toString())")
+    @Mapping(target = "status", expression = "java(order.getStatus().name())")
+    @Mapping(target = "reason", source = "reason") // Passed from service
+    @Mapping(target = "cancelledAt", expression = "java(java.time.Instant.now())") // Or allow service to pass it
+    CancelOrderResponse toCancelOrderResponse(Order order, String reason);
 }

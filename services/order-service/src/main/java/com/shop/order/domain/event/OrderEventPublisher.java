@@ -36,4 +36,18 @@ public class OrderEventPublisher {
         }
     }
 
+    public void publishOrderCancelled(OrderCancelledEvent event) {
+        log.info("Publishing OrderCancelledEvent for Order: {}", event.orderId());
+        try {
+            kafkaTemplate.send(TOPIC_ORDER_CANCELLED, event.orderId(), event)
+                    .get(3, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("Failed to publish OrderCancelledEvent for order: {}", event.orderId(), e);
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            throw new EventPublishingException("Failed to publish order cancelled event", e);
+        }
+    }
+
 }
