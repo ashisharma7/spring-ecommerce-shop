@@ -42,7 +42,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         log.info("Processing create order request for user: {}", createOrderRequest.userId());
         Map<String, CatalogProductResponse> catalogProductDataMap = fetchCatalogData(createOrderRequest);
         List<OrderItem> orderItems = buildOrderItems(createOrderRequest, catalogProductDataMap);
-        Order order = Order.create(createOrderRequest.userId(), orderItems);
+        Long nextOrderNumber = orderRepository.getNextOrderNumber();
+        Order order = Order.create(createOrderRequest.userId(), nextOrderNumber, orderItems);
         Order savedOrder = orderRepository.save(order);
         publishOrderCreatedEvent(savedOrder);
         log.info("Order created for user: {} with order id: {}", createOrderRequest.userId(), savedOrder.getId());

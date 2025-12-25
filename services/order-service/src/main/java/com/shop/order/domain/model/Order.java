@@ -43,16 +43,16 @@ public class Order {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     //Domain helper methods
-    public static Order create(@NotBlank String userId) {
+    public static Order create(@NotBlank String userId, @NotBlank Long orderNumber) {
         return Order.builder()
                 .userId(userId)
-                .orderNumber(UUID.randomUUID().toString())
+                .orderNumber("ORD-"+orderNumber)
                 .status(OrderStatus.CREATED)
                 .build();
     }
 
-    public static Order create(@NotBlank String userId, @NotNull List<OrderItem> orderItems) {
-        Order order = create(userId);
+    public static Order create(@NotBlank String userId, @NotBlank Long orderNumber, @NotNull List<OrderItem> orderItems) {
+        Order order = create(userId, orderNumber);
         orderItems.forEach(order::addItem);
         return order;
     }
