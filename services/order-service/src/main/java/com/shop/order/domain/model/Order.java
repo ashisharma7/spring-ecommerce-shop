@@ -34,13 +34,13 @@ public class Order {
     private OrderStatus status;
 
     @Column(name = "total_amount", nullable = false)
-    private BigDecimal totalAmount = BigDecimal.ZERO;
+    private BigDecimal totalAmount;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItem> orderItems;
 
     //Domain helper methods
     public static Order create(@NotBlank String userId, @NotBlank Long orderNumber) {
@@ -48,6 +48,9 @@ public class Order {
                 .userId(userId)
                 .orderNumber("ORD-"+orderNumber)
                 .status(OrderStatus.CREATED)
+                .totalAmount(BigDecimal.ZERO)
+                .orderItems(new ArrayList<>())
+                .createdAt(Instant.now())
                 .build();
     }
 
@@ -76,10 +79,6 @@ public class Order {
         this.status = OrderStatus.CANCELLED;
     }
 
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = Instant.now();
-    }
 }
 
 
