@@ -1,5 +1,6 @@
 package com.shop.order.domain.model;
 
+import com.shop.order.domain.exception.InvalidOrderStateException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -77,6 +78,20 @@ public class Order {
 
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void validateOrderState() {
+        // 1. Must have at least one item
+        if (this.orderItems == null || this.orderItems.isEmpty()) {
+            throw new InvalidOrderStateException("Cannot save Order: Order must contain at least one item.");
+        }
+
+        // 2. Total amount must be positive
+        if (this.totalAmount == null || this.totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidOrderStateException("Cannot save Order: Total amount must be greater than zero.");
+        }
     }
 
 }
