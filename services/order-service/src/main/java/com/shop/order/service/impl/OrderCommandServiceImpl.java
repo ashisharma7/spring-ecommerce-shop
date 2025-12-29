@@ -54,10 +54,14 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Transactional
     public CancelOrderResponse cancelOrder(CancelOrderRequest cancelOrderRequest) {
         var orderId = cancelOrderRequest.orderId();
+        var userId = cancelOrderRequest.userId();
         var reason = cancelOrderRequest.reason();
         log.info("Cancelling order {} Reason: {}", orderId, reason);
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new OrderNotFoundException("No order exists with ID: "+ orderId));
+        if (!userId.equals(order.getUserId())){
+            throw new OrderNotFoundException("No order exists with ID: "+ orderId+" for user with ID: "+userId);
+        }
         order.cancel();
         Order savedOrder = orderRepository.save(order);
         OrderCancelledEvent event = orderMapper.toOrderCancelledEvent(savedOrder, reason);
