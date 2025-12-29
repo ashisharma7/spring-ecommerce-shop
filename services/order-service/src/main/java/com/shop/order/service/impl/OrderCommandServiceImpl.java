@@ -90,7 +90,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private void validateProduct(String productId,
                                                    CatalogProductResponse productData) {
         // 1. Check Existence & Availability
-        if (null == productData || !Boolean.TRUE.equals(productData.available())) {
+        if (Boolean.FALSE.equals(productData.available())) {
             throw new ProductNotFoundException("Product not available: " + productId);
         }
         // 2. Product ID must not be blank
