@@ -25,11 +25,17 @@ public class HttpCatalogClient implements CatalogClient {
     public HttpCatalogClient(RestClient.Builder builder,
                              @Value("${catalog.base-url}") String baseUrl,
                              @Value("${catalog.client.connect-timeout-ms}") long connectTimeout,
-                             @Value("${catalog.client.read-timeout-ms}") long readTimeout) {
-        var requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout((int) connectTimeout);
-        requestFactory.setReadTimeout((int) readTimeout);
-        restClient = builder.baseUrl(baseUrl).requestFactory(requestFactory).build();
+                             @Value("${catalog.client.read-timeout-ms}") long readTimeout,
+                             @Value("${catalog.client.enforce-timeouts:true}") boolean enforceTimeouts) {
+
+        builder.baseUrl(baseUrl);
+        if (enforceTimeouts){
+            var requestFactory = new SimpleClientHttpRequestFactory();
+            requestFactory.setConnectTimeout((int) connectTimeout);
+            requestFactory.setReadTimeout((int) readTimeout);
+            builder.requestFactory(requestFactory);
+        }
+        this.restClient = builder.build();
     }
 
     @Override
