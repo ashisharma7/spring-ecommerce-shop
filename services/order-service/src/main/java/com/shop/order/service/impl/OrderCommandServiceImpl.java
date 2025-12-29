@@ -55,8 +55,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     public CancelOrderResponse cancelOrder(CancelOrderRequest cancelOrderRequest) {
         var orderId = cancelOrderRequest.orderId();
         var userId = cancelOrderRequest.userId();
-        var reason = cancelOrderRequest.reason();
-        log.info("Cancelling order {} Reason: {}", orderId, reason);
+        var cancellationReason = cancelOrderRequest.reason();
+        log.info("Cancelling order {} Reason: {}", orderId, cancellationReason);
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new OrderNotFoundException("No order exists with ID: "+ orderId));
         if (!userId.equals(order.getUserId())){
@@ -64,11 +64,9 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         }
         order.cancel();
         Order savedOrder = orderRepository.save(order);
-        OrderCancelledEvent event = orderMapper.toOrderCancelledEvent(savedOrder, reason);
-        orderEventPublisher.publishOrderCancelled(event);
-
+        publishOrderCancelledEvent(savedOrder, cancellationReason);
         log.info("Order {} cancelled successfully.", orderId);
-        return orderMapper.toCancelOrderResponse(savedOrder, reason);
+        return orderMapper.toCancelOrderResponse(savedOrder, cancellationReason);
     }
 
     private Map<String, CatalogProductResponse> fetchCatalogData(CreateOrderRequest createOrderRequest) {
@@ -108,6 +106,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private void publishOrderCreatedEvent(Order savedOrder) {
         OrderCreatedEvent event = orderMapper.toOrderCreatedEvent(savedOrder);
         orderEventPublisher.publishOrderCreated(event);
+    }
+
+    private void publishOrderCancelledEvent(Order savedOrder, String cancellationReason) {
+        OrderCancelledEvent event = orderMapper.toOrderCancelledEvent(savedOrder, cancellationReason);
+        orderEventPublisher.publishOrderCancelled(event);
     }
 
 }
