@@ -77,6 +77,9 @@ public class Order {
     }
 
     public void cancel() {
+        if (OrderStatus.CANCELLED.equals(this.status)) {
+            throw new InvalidOrderStateException("Cannot cancel an already cancelled Order.");
+        }
         this.status = OrderStatus.CANCELLED;
     }
 
