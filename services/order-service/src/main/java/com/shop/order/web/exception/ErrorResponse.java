@@ -1,7 +1,6 @@
 package com.shop.order.web.exception;
 
 import java.time.Instant;
-import java.util.List;
 
 public record ErrorResponse(
         ErrorCode error,

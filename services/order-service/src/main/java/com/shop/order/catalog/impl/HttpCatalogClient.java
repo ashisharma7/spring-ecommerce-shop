@@ -5,9 +5,7 @@ import com.shop.order.catalog.dto.CatalogProductRequest;
 import com.shop.order.catalog.dto.CatalogProductResponse;
 import com.shop.order.catalog.exception.CatalogUnavailableException;
 import com.shop.order.catalog.exception.ProductNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -58,7 +56,7 @@ public class HttpCatalogClient implements CatalogClient {
         } catch (ResourceAccessException resourceAccessException){
             throw new CatalogUnavailableException();
         } catch (Exception exception) {
-            throw new RuntimeException(exception);
+            throw new CatalogUnavailableException(exception);
         }
     }
 
