@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8083
 
 logging:
   level:
@@ -40,7 +40,7 @@ spring:
         spring.json.add.type.headers: false
 
 catalog:
-  base-url: http://localhost:8082
+  base-url: http://localhost:8081
   client:
     connect-timeout-ms: 1000
     read-timeout-ms: 2000
