@@ -1,7 +1,7 @@
 package com.shop.order.service;
 
 import com.shop.order.catalog.CatalogClient;
-import com.shop.order.catalog.dto.CatalogProductResponse;
+import com.shop.order.catalog.dto.CatalogResponse;
 import com.shop.order.catalog.exception.ProductNotFoundException;
 import com.shop.order.domain.event.OrderCancelledEvent;
 import com.shop.order.domain.event.OrderCreatedEvent;
@@ -55,7 +55,7 @@ class OrderCommandServiceTest {
     @Test
     void shouldCreateOrderSuccessfullyAndPublishEvent_WhenCatalogIsAvailable() {
         CreateOrderRequest request = TestData.createValidCreateOrderRequest();
-        List<CatalogProductResponse> catalogProducts = List.of(TestData.createValidCatalogProduct());
+        CatalogResponse catalogProducts = new CatalogResponse(List.of(TestData.createValidCatalogProduct()));
         Long orderNumber = TestData.getRandomNumber();
         Order savedOrder = TestData.createSavedOrderWithItems();
 
@@ -93,7 +93,9 @@ class OrderCommandServiceTest {
     @Test
     void shouldThrowProductNotFound_WhenProductIsNotAvailableInCatalog() {
         CreateOrderRequest request = TestData.createValidCreateOrderRequest();
-        List<CatalogProductResponse> catalogProducts = List.of(TestData.createInvalidCatalogProduct_NotAvailable());
+        CatalogResponse catalogProducts = new CatalogResponse(
+                List.of(TestData.createInvalidCatalogProduct_NotAvailable())
+        );
         when(catalogClient.fetchProducts(any()))
                 .thenReturn(catalogProducts);
 
@@ -106,7 +108,9 @@ class OrderCommandServiceTest {
     @Test
     void shouldThrowInvalidOrderState_WhenProductPriceIsZeroOrNegative() {
         CreateOrderRequest request = TestData.createValidCreateOrderRequest();
-        List<CatalogProductResponse> catalogProducts = List.of(TestData.createInvalidCatalogProduct_NegativePrice());
+        CatalogResponse catalogProducts = new CatalogResponse(
+                List.of(TestData.createInvalidCatalogProduct_NegativePrice())
+        );
         when(catalogClient.fetchProducts(any()))
                 .thenReturn(catalogProducts);
 
@@ -119,7 +123,9 @@ class OrderCommandServiceTest {
     @Test
     void shouldThrowInvalidOrderState_WhenProductIdIsBlank() {
         CreateOrderRequest request = TestData.createInvalidCreateOrderRequest_BlankProductID();
-        List<CatalogProductResponse> catalogProducts = List.of(TestData.createInvalidCatalogProduct_BlankID());
+        CatalogResponse catalogProducts = new CatalogResponse(
+                List.of(TestData.createInvalidCatalogProduct_BlankID())
+        );
         when(catalogClient.fetchProducts(any()))
                 .thenReturn(catalogProducts);
 

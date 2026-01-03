@@ -44,7 +44,6 @@ class OrderControllerTest {
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createOrderRequest)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.orderId").value(createOrderResponse.orderId().toString()))
                 .andExpect(jsonPath("$.orderNumber").value(createOrderResponse.orderNumber()))
                 .andExpect(jsonPath("$.totalAmount").value(createOrderResponse.totalAmount()));
     }

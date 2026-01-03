@@ -39,6 +39,14 @@ public record ErrorResponse(
         );
     }
 
+    public static ErrorResponse invalidDomainStateError(String messages) {
+        return new ErrorResponse(
+                ErrorCode.DOMAIN_STATE_ERROR,
+                messages,
+                Instant.now()
+        );
+    }
+
     public static ErrorResponse internalServerError(String messages) {
         return new ErrorResponse(
                 ErrorCode.INTERNAL_SERVER_ERROR,

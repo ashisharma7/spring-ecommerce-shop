@@ -3,6 +3,7 @@ package com.shop.order.web.exception;
 import com.shop.order.catalog.exception.CatalogUnavailableException;
 import com.shop.order.catalog.exception.ProductNotFoundException;
 import com.shop.order.domain.exception.EventPublishingException;
+import com.shop.order.domain.exception.InvalidOrderStateException;
 import com.shop.order.domain.exception.OrderNotFoundException;
 import com.shop.order.service.OrderCommandService;
 import com.shop.order.service.OrderQueryService;
@@ -48,17 +49,6 @@ class GlobalExceptionHandlerTest {
                         .content(objectMapper.writeValueAsString(createOrderRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
-    }
-
-    @Test
-    void shouldReturn400_WhenConstraintViolationOccurs() throws Exception {
-        CreateOrderRequest createOrderRequest = TestData.createInvalidCreateOrderRequest_BlankUserID();
-
-        mockMvc.perform(post("/api/orders")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createOrderRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("CONSTRAINTS_ERROR"));
     }
 
     @Test
@@ -115,6 +105,21 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.error").value("INTERNAL_SERVER_ERROR"))
                 .andExpect(jsonPath("$.messages").value("Simulated event not published"));
+    }
+
+    @Test
+    void shouldReturn409_WhenInvalidOrderState() throws Exception {
+        CreateOrderRequest createOrderRequest = TestData.createValidCreateOrderRequest();
+
+        when(orderCommandService.createOrder(createOrderRequest))
+                .thenThrow(new InvalidOrderStateException("Simulated invalid order state"));
+
+        mockMvc.perform(post("/api/orders")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createOrderRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("DOMAIN_STATE_ERROR"))
+                .andExpect(jsonPath("$.messages").value("Simulated invalid order state"));
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.shop.order.catalog;
 
-import com.shop.order.catalog.dto.CatalogProductRequest;
-import com.shop.order.catalog.dto.CatalogProductResponse;
+import com.shop.order.catalog.dto.CatalogRequest;
+import com.shop.order.catalog.dto.CatalogResponse;
 import com.shop.order.catalog.exception.CatalogUnavailableException;
 import com.shop.order.catalog.exception.ProductNotFoundException;
 import com.shop.order.catalog.impl.HttpCatalogClient;
@@ -36,35 +36,38 @@ class CatalogClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final String catalogUri = "http://localhost:8082/internal/catalog/products/info";
+    private final String catalogUri = "http://localhost:8081/internal/catalog/products/info";
 
     @Test
     void shouldReturnProducts_WhenApiCallIsSuccessful() {
-        var request = List.of(new CatalogProductRequest("prod-1", 2));
+        var request = new CatalogRequest(
+                List.of(new CatalogRequest.CatalogProductRequest("prod-1", 2))
+        );
         var catalogProductResponseJson = """
-            {
-                "products": [
-                    { "productId": "prod-1", "name": "Phone", "price": 500.00, "available": true }
-                ]
-            }
-            """;
+                {
+                    "products": [
+                        { "productId": "prod-1", "name": "Phone", "price": 500.00, "available": true }
+                    ]
+                }
+                """;
 
         mockServer.expect(requestTo(catalogUri))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(catalogProductResponseJson, MediaType.APPLICATION_JSON));
 
-        List<CatalogProductResponse> result = catalogClient.fetchProducts(request);
+        CatalogResponse result = catalogClient.fetchProducts(request);
 
         // 3. Assert
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().productId()).isEqualTo("prod-1");
-        assertThat(result.getFirst().price()).isEqualByComparingTo("500.00");
+        assertThat(result.products()).hasSize(1);
+        assertThat(result.products().getFirst().productId()).isEqualTo("prod-1");
+        assertThat(result.products().getFirst().price()).isEqualByComparingTo("500.00");
     }
 
     @Test
     void shouldThrowProductNotFound_WhenServerReturns4xx() {
-        var request = List.of(new CatalogProductRequest("invalid", 1));
-
+        var request = new CatalogRequest(
+                List.of(new CatalogRequest.CatalogProductRequest("invalid", 1))
+        );
         mockServer.expect(requestTo(catalogUri))
                 .andRespond(withBadRequest());
 
@@ -74,8 +77,9 @@ class CatalogClientTest {
 
     @Test
     void shouldThrowCatalogUnavailable_WhenServerReturns5xx() {
-        var request = List.of(new CatalogProductRequest("invalid", 1));
-
+        var request = new CatalogRequest(
+                List.of(new CatalogRequest.CatalogProductRequest("invalid", 1))
+        );
         mockServer.expect(requestTo(catalogUri))
                 .andRespond(withServerError());
 
@@ -85,8 +89,9 @@ class CatalogClientTest {
 
     @Test
     void shouldThrowCatalogUnavailable_WhenResourceAccessExceptionOccurs() {
-        var request = List.of(new CatalogProductRequest("invalid", 1));
-
+        var request = new CatalogRequest(
+                List.of(new CatalogRequest.CatalogProductRequest("invalid", 1))
+        );
         mockServer.expect(requestTo(catalogUri))
                 .andRespond(withException(new IOException("Simulated IOException")));
 
@@ -96,8 +101,9 @@ class CatalogClientTest {
 
     @Test
     void shouldWrapGenericException_WhenUnexpectedErrorOccurs() {
-        var request = List.of(new CatalogProductRequest("invalid", 1));
-
+        var request = new CatalogRequest(
+                List.of(new CatalogRequest.CatalogProductRequest("invalid", 1))
+        );
         mockServer.expect(requestTo(catalogUri))
                 .andRespond(req -> {
                     throw new RuntimeException("Simulated IOException");

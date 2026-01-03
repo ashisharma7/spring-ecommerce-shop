@@ -1,6 +1,6 @@
 package com.shop.order.testutil;
 
-import com.shop.order.catalog.dto.CatalogProductResponse;
+import com.shop.order.catalog.dto.CatalogResponse;
 import com.shop.order.domain.event.OrderCancelledEvent;
 import com.shop.order.domain.event.OrderCreatedEvent;
 import com.shop.order.domain.model.Order;
@@ -55,7 +55,7 @@ public final class TestData {
 
     public static CreateOrderResponse createValidCreateOrderResponse() {
         return new CreateOrderResponse(
-                UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "ORD-1",
                 "CREATED",
                 new BigDecimal("199.99"),
@@ -84,32 +84,32 @@ public final class TestData {
         );
     }
 
-    public static CatalogProductResponse createValidCatalogProduct() {
-        return new CatalogProductResponse(
+    public static CatalogResponse.CatalogProductResponse createValidCatalogProduct() {
+        return new CatalogResponse.CatalogProductResponse(
                 "pid-1",
                 "name-1",
                 BigDecimal.valueOf(100),
                 Boolean.TRUE);
     }
 
-    public static CatalogProductResponse createInvalidCatalogProduct_NotAvailable() {
-        return new CatalogProductResponse(
+    public static CatalogResponse.CatalogProductResponse createInvalidCatalogProduct_NotAvailable() {
+        return new CatalogResponse.CatalogProductResponse(
                 "pid-1",
                 "name-1",
                 BigDecimal.valueOf(100),
                 Boolean.FALSE);
     }
 
-    public static CatalogProductResponse createInvalidCatalogProduct_NegativePrice() {
-        return new CatalogProductResponse(
+    public static CatalogResponse.CatalogProductResponse createInvalidCatalogProduct_NegativePrice() {
+        return new CatalogResponse.CatalogProductResponse(
                 "pid-1",
                 "name-1",
                 BigDecimal.valueOf(-100),
                 Boolean.TRUE);
     }
 
-    public static CatalogProductResponse createInvalidCatalogProduct_BlankID() {
-        return new CatalogProductResponse(
+    public static CatalogResponse.CatalogProductResponse createInvalidCatalogProduct_BlankID() {
+        return new CatalogResponse.CatalogProductResponse(
                 " ",
                 "name-1",
                 BigDecimal.valueOf(100),

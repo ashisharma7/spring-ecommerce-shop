@@ -1,10 +1,8 @@
 package com.shop.order.catalog;
 
-import com.shop.order.catalog.dto.CatalogProductRequest;
-import com.shop.order.catalog.dto.CatalogProductResponse;
-
-import java.util.List;
+import com.shop.order.catalog.dto.CatalogRequest;
+import com.shop.order.catalog.dto.CatalogResponse;
 
 public interface CatalogClient {
-    List<CatalogProductResponse> fetchProducts(List<CatalogProductRequest> items);
+    CatalogResponse fetchProducts(CatalogRequest catalogRequest);
 }

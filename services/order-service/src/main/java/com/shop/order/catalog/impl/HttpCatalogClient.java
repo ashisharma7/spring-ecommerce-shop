@@ -1,8 +1,8 @@
 package com.shop.order.catalog.impl;
 
 import com.shop.order.catalog.CatalogClient;
-import com.shop.order.catalog.dto.CatalogProductRequest;
-import com.shop.order.catalog.dto.CatalogProductResponse;
+import com.shop.order.catalog.dto.CatalogRequest;
+import com.shop.order.catalog.dto.CatalogResponse;
 import com.shop.order.catalog.exception.CatalogUnavailableException;
 import com.shop.order.catalog.exception.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -37,11 +36,11 @@ public class HttpCatalogClient implements CatalogClient {
     }
 
     @Override
-    public List<CatalogProductResponse> fetchProducts(List<CatalogProductRequest> products) {
+    public CatalogResponse fetchProducts(CatalogRequest catalogRequest) {
         try {
             return Objects.requireNonNull(restClient.post()
                     .uri(CATALOG_PRODUCT_CHECK_ENDPOINT)
-                    .body(new CatalogRequest(products))
+                    .body(catalogRequest)
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
                         throw new ProductNotFoundException("Product not found in catalog");
@@ -49,8 +48,7 @@ public class HttpCatalogClient implements CatalogClient {
                     .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
                         throw new CatalogUnavailableException();
                     })
-                    .body(CatalogResponse.class))
-                    .products;
+                    .body(CatalogResponse.class));
         } catch (ProductNotFoundException | CatalogUnavailableException catalogException) {
             throw catalogException;
         } catch (ResourceAccessException resourceAccessException){
@@ -58,12 +56,6 @@ public class HttpCatalogClient implements CatalogClient {
         } catch (Exception exception) {
             throw new CatalogUnavailableException(exception);
         }
-    }
-
-    private record CatalogRequest(List<CatalogProductRequest> items) {
-    }
-
-    private record CatalogResponse(List<CatalogProductResponse> products) {
     }
 
 }

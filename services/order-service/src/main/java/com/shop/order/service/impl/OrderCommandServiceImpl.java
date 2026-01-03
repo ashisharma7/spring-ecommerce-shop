@@ -1,8 +1,8 @@
 package com.shop.order.service.impl;
 
 import com.shop.order.catalog.CatalogClient;
-import com.shop.order.catalog.dto.CatalogProductRequest;
-import com.shop.order.catalog.dto.CatalogProductResponse;
+import com.shop.order.catalog.dto.CatalogRequest;
+import com.shop.order.catalog.dto.CatalogResponse;
 import com.shop.order.catalog.exception.ProductNotFoundException;
 import com.shop.order.domain.event.OrderCancelledEvent;
 import com.shop.order.domain.event.OrderCreatedEvent;
@@ -40,7 +40,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     @Transactional
     public CreateOrderResponse createOrder(CreateOrderRequest createOrderRequest) {
         log.info("Processing create order request for user: {}", createOrderRequest.userId());
-        Map<String, CatalogProductResponse> catalogProductDataMap = fetchCatalogData(createOrderRequest);
+        Map<String, CatalogResponse.CatalogProductResponse> catalogProductDataMap = fetchCatalogData(createOrderRequest);
         List<OrderItem> orderItems = buildOrderItems(createOrderRequest, catalogProductDataMap);
         Long nextOrderNumber = orderRepository.getNextOrderNumber();
         Order order = Order.create(createOrderRequest.userId(), nextOrderNumber, orderItems);
@@ -58,9 +58,9 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         var cancellationReason = cancelOrderRequest.reason();
         log.info("Cancelling order {} Reason: {}", orderId, cancellationReason);
         Order order = orderRepository.findById(UUID.fromString(orderId))
-                .orElseThrow(() -> new OrderNotFoundException("No order exists with ID: "+ orderId));
-        if (!userId.equals(order.getUserId())){
-            throw new OrderNotFoundException("No order exists with ID: "+ orderId+" for user with ID: "+userId);
+                .orElseThrow(() -> new OrderNotFoundException("No order exists with ID: " + orderId));
+        if (!userId.equals(order.getUserId())) {
+            throw new OrderNotFoundException("No order exists with ID: " + orderId + " for user with ID: " + userId);
         }
         order.cancel();
         Order savedOrder = orderRepository.save(order);
@@ -69,18 +69,18 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         return orderMapper.toCancelOrderResponse(savedOrder, cancellationReason);
     }
 
-    private Map<String, CatalogProductResponse> fetchCatalogData(CreateOrderRequest createOrderRequest) {
-        List<CatalogProductRequest> catalogProductRequestList = createOrderRequest.orderItems().stream()
-                .map(orderItem -> new CatalogProductRequest(orderItem.productId(), orderItem.quantity()))
-                .toList();
-        return catalogClient.fetchProducts(catalogProductRequestList).stream()
-                .collect(Collectors.toMap(CatalogProductResponse::productId, Function.identity()));
+    private Map<String, CatalogResponse.CatalogProductResponse> fetchCatalogData(CreateOrderRequest createOrderRequest) {
+        CatalogRequest catalogRequest = new CatalogRequest(createOrderRequest.orderItems().stream()
+                .map(orderItem -> new CatalogRequest.CatalogProductRequest(orderItem.productId(), orderItem.quantity()))
+                .toList());
+        return catalogClient.fetchProducts(catalogRequest).products().stream()
+                .collect(Collectors.toMap(CatalogResponse.CatalogProductResponse::productId, Function.identity()));
     }
 
-    private List<OrderItem> buildOrderItems(CreateOrderRequest createOrderRequest, Map<String, CatalogProductResponse> catalogProductDataMap) {
+    private List<OrderItem> buildOrderItems(CreateOrderRequest createOrderRequest, Map<String, CatalogResponse.CatalogProductResponse> catalogProductDataMap) {
         return createOrderRequest.orderItems().stream()
                 .map(orderItemRequest -> {
-                    CatalogProductResponse product = catalogProductDataMap.get(orderItemRequest.productId());
+                    CatalogResponse.CatalogProductResponse product = catalogProductDataMap.get(orderItemRequest.productId());
                     validateProduct(orderItemRequest.productId(), product);
                     return orderMapper.toOrderItem(orderItemRequest, product);
                 })
@@ -88,13 +88,13 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     }
 
     private void validateProduct(String productId,
-                                                   CatalogProductResponse productData) {
+                                 CatalogResponse.CatalogProductResponse productData) {
         // 1. Check Existence & Availability
         if (Boolean.FALSE.equals(productData.available())) {
             throw new ProductNotFoundException("Product not available: " + productId);
         }
         // 2. Product ID must not be blank
-        if(productId.isBlank()){
+        if (productId.isBlank()) {
             throw new InvalidOrderStateException("Invalid id for product: " + productId);
         }
         // 3. Business Rule: Price must be positive

@@ -3,8 +3,8 @@ package com.shop.order.web.exception;
 import com.shop.order.catalog.exception.CatalogUnavailableException;
 import com.shop.order.catalog.exception.ProductNotFoundException;
 import com.shop.order.domain.exception.EventPublishingException;
+import com.shop.order.domain.exception.InvalidOrderStateException;
 import com.shop.order.domain.exception.OrderNotFoundException;
-import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +31,6 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.validationError(errorMessages));
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<@NonNull ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.validationError(ex.getMessage()));
-    }
-
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleProductNotFound(ProductNotFoundException ex) {
         return ResponseEntity
@@ -62,6 +55,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<@NonNull ErrorResponse> handleOrderNotFound(OrderNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.orderNotFoundError(ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidOrderStateException.class)
+    public ResponseEntity<@NonNull ErrorResponse> handleInvalidOrderStateException(InvalidOrderStateException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.invalidDomainStateError(ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
