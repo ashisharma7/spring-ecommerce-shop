@@ -15,10 +15,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
-@Builder
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Order {
     @Id
     @GeneratedValue
@@ -37,32 +36,37 @@ public class Order {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
+    @Embedded
+    private DeliveryAddress deliveryAddress;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 
-    //Domain helper methods
-    public static Order create(@NotBlank String userId, @NotBlank Long orderNumber) {
+    public static Order create(@NotBlank String userId, @NotBlank Long orderNumber,
+                               @NotNull DeliveryAddress deliveryAddress) {
         return Order.builder()
                 .userId(userId)
                 .orderNumber("ORD-"+orderNumber)
                 .status(OrderStatus.CREATED)
                 .totalAmount(BigDecimal.ZERO)
+                .deliveryAddress(deliveryAddress)
                 .orderItems(new ArrayList<>())
                 .createdAt(Instant.now())
                 .build();
     }
 
-    public static Order create(@NotBlank String userId, @NotBlank Long orderNumber, @NotNull List<OrderItem> orderItems) {
-        Order order = create(userId, orderNumber);
+    public static Order create(@NotBlank String userId, @NotBlank Long orderNumber,
+                               @NotNull DeliveryAddress deliveryAddress, @NotNull List<OrderItem> orderItems) {
+        Order order = create(userId, orderNumber, deliveryAddress);
         orderItems.forEach(order::addItem);
         return order;
     }
 
     public void addItem(OrderItem orderItem) {
-        orderItem.setOrder(this);
+        orderItem.assignToOrder(this);
         this.orderItems.add(orderItem);
         BigDecimal itemTotal = orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()));
         this.totalAmount = this.totalAmount.add(itemTotal);
@@ -95,6 +99,14 @@ public class Order {
         if (this.totalAmount == null || this.totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidOrderStateException("Cannot save Order: Total amount must be greater than zero.");
         }
+
+        // 3. Delivery Address must be there
+        if (this.deliveryAddress == null) {
+            throw new InvalidOrderStateException("Cannot save Order: Delivery Address must not be null.");
+        }
+
+        // 4. Validating fields of delivery address
+        this.deliveryAddress.validateAddress();
     }
 
 }

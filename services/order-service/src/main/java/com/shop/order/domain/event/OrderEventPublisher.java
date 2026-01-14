@@ -15,9 +15,8 @@ import java.util.concurrent.TimeUnit;
 public class OrderEventPublisher {
 
     private final KafkaTemplate<@NonNull String, @NonNull Object> kafkaTemplate;
-    private static final String TOPIC_ORDER_CREATED = "order-events";
+    private static final String TOPIC_ORDER_CREATED = "order-creation-events";
     private static final String TOPIC_ORDER_CANCELLED = "order-cancelled-events";
-
 
     public void publishOrderCreated(OrderCreatedEvent event) {
         log.info("Publishing OrderCreatedEvent for Order: {}", event.orderId());

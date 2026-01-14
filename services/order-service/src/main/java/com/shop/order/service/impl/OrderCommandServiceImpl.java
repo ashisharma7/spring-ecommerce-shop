@@ -43,7 +43,10 @@ public class OrderCommandServiceImpl implements OrderCommandService {
         Map<String, CatalogResponse.CatalogProductResponse> catalogProductDataMap = fetchCatalogData(createOrderRequest);
         List<OrderItem> orderItems = buildOrderItems(createOrderRequest, catalogProductDataMap);
         Long nextOrderNumber = orderRepository.getNextOrderNumber();
-        Order order = Order.create(createOrderRequest.userId(), nextOrderNumber, orderItems);
+        Order order = Order.create(createOrderRequest.userId(),
+                nextOrderNumber,
+                orderMapper.toDomainDeliveryAddress(createOrderRequest.deliveryAddress()),
+                orderItems);
         Order savedOrder = orderRepository.save(order);
         publishOrderCreatedEvent(savedOrder);
         log.info("Order created for user: {} with order id: {}", createOrderRequest.userId(), savedOrder.getId());

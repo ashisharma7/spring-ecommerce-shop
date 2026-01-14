@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OrderDomainTest {
+class OrderTest {
 
     @Test
     void shouldCreateOrder_WithInitialStateCreated_AndZeroTotal() {
@@ -121,14 +121,14 @@ class OrderDomainTest {
 
     @Test
     void shouldNotThrowException_WhenSavingOrder() {
-        Order zeroAmountOrder = Order.create("user-1", 100L);
+        Order validOrder = Order.create("user-1", 100L, TestData.createValidDeliveryAddress());
         OrderItem orderItem = OrderItem.builder()
                 .price(BigDecimal.ONE)
                 .quantity(1)
                 .build();
-        zeroAmountOrder.addItem(orderItem);
+        validOrder.addItem(orderItem);
 
-        assertDoesNotThrow(zeroAmountOrder::validateOrderState);
+        assertDoesNotThrow(validOrder::validateOrderState);
     }
 
     @Test
@@ -142,7 +142,7 @@ class OrderDomainTest {
 
     @Test
     void shouldThrowException_WhenSavingOrderWithNoItems() {
-        Order emptyOrder = Order.create("user-1", 100L);
+        Order emptyOrder = Order.create("user-1", 100L, TestData.createValidDeliveryAddress());
 
         assertThrows(InvalidOrderStateException.class, emptyOrder::validateOrderState);
     }
@@ -159,9 +159,21 @@ class OrderDomainTest {
 
     @Test
     void shouldThrowException_WhenSavingOrderWithZeroTotalAmount() {
-        Order zeroAmountOrder = Order.create("user-1", 100L);
+        Order zeroAmountOrder = Order.create("user-1", 100L, TestData.createValidDeliveryAddress());
         OrderItem orderItem = OrderItem.builder()
                 .price(BigDecimal.ZERO)
+                .quantity(1)
+                .build();
+        zeroAmountOrder.addItem(orderItem);
+
+        assertThrows(InvalidOrderStateException.class, zeroAmountOrder::validateOrderState);
+    }
+
+    @Test
+    void shouldThrowException_WhenSavingOrderWithNullDeliveryAddress() {
+        Order zeroAmountOrder = Order.create("user-1", 100L, null);
+        OrderItem orderItem = OrderItem.builder()
+                .price(BigDecimal.TEN)
                 .quantity(1)
                 .build();
         zeroAmountOrder.addItem(orderItem);

@@ -8,17 +8,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "order_items")
-@Builder @Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderItem {
     @Id
     @GeneratedValue
     private UUID id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
 
     @Column(name = "product_id", nullable = false)
     private String productId;
@@ -31,4 +27,13 @@ public class OrderItem {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
+
+    void assignToOrder(Order order) {
+        this.order = order;
+    }
+
 }

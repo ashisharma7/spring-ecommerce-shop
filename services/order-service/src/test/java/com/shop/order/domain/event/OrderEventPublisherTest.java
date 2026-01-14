@@ -32,13 +32,13 @@ class OrderEventPublisherTest {
     void shouldPublishOrderCreatedEvent_Successfully() {
         OrderCreatedEvent orderCreatedEvent = TestData.getOrderCreatedEvent();
 
-        when(kafkaTemplate.send("order-events", orderCreatedEvent.orderId(), orderCreatedEvent))
+        when(kafkaTemplate.send("order-creation-events", orderCreatedEvent.orderId(), orderCreatedEvent))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
         orderEventPublisher.publishOrderCreated(orderCreatedEvent);
 
         verify(kafkaTemplate, times(1))
-                .send("order-events", orderCreatedEvent.orderId(), orderCreatedEvent);
+                .send("order-creation-events", orderCreatedEvent.orderId(), orderCreatedEvent);
     }
 
     @Test
@@ -58,14 +58,14 @@ class OrderEventPublisherTest {
     void shouldPublishOrderCreatedEventThrowEventPublishingException_WhenKafkaFails() {
         OrderCreatedEvent orderCreatedEvent = TestData.getOrderCreatedEvent();
 
-        when(kafkaTemplate.send("order-events", orderCreatedEvent.orderId(), orderCreatedEvent))
+        when(kafkaTemplate.send("order-creation-events", orderCreatedEvent.orderId(), orderCreatedEvent))
                 .thenReturn(CompletableFuture.failedFuture(new RuntimeException()));
 
         EventPublishingException eventPublishingException = assertThrows(EventPublishingException.class, () ->
                 orderEventPublisher.publishOrderCreated(orderCreatedEvent));
 
         verify(kafkaTemplate, times(1))
-                .send("order-events", orderCreatedEvent.orderId(), orderCreatedEvent);
+                .send("order-creation-events", orderCreatedEvent.orderId(), orderCreatedEvent);
 
         assertThat(eventPublishingException.getMessage())
                 .contains("Failed to publish order event");
@@ -91,7 +91,7 @@ class OrderEventPublisherTest {
                 .contains("Failed to publish order event");
 
         verify(kafkaTemplate, times(1))
-                .send("order-events", orderCreatedEvent.orderId(), orderCreatedEvent);
+                .send("order-creation-events", orderCreatedEvent.orderId(), orderCreatedEvent);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.shop.order.web.mapper;
 import com.shop.order.catalog.dto.CatalogResponse;
 import com.shop.order.domain.event.OrderCancelledEvent;
 import com.shop.order.domain.event.OrderCreatedEvent;
+import com.shop.order.domain.model.DeliveryAddress;
 import com.shop.order.domain.model.Order;
 import com.shop.order.domain.model.OrderItem;
 import com.shop.order.web.dto.*;
@@ -23,9 +24,13 @@ public interface OrderMapper {
     @Mapping(target = "quantity", source = "request.quantity")
     OrderItem toOrderItem(CreateOrderItemRequest request, CatalogResponse.CatalogProductResponse product);
 
+    DeliveryAddress toDomainDeliveryAddress(CreateOrderRequest.DeliveryAddress dtoDeliveryAddress);
+
     @Mapping(target = "orderId", expression = "java(order.getId().toString())")
     @Mapping(target = "items", source = "orderItems")
     OrderCreatedEvent toOrderCreatedEvent(Order order);
+
+    OrderCreatedEvent.DeliveryAddress toEventDeliveryAddress(DeliveryAddress domainDeliveryAddress);
 
     OrderCreatedEvent.OrderItemEvent toOrderItemEvent(OrderItem orderItem);
 
