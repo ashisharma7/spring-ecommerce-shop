@@ -33,6 +33,7 @@ docker-compose.override.yml
 # ===== Misc =====
 coverage/
 tmp/
+copilot-instructions.md
 
 ### STS ###
 .apt_generated
