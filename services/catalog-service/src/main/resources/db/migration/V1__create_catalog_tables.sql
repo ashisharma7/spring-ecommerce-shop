@@ -14,7 +14,7 @@ CREATE TABLE products
     name        VARCHAR(255)   NOT NULL,
     description TEXT           NOT NULL,
     price       NUMERIC(19, 2) NOT NULL,
-    image       VARCHAR(255),
+    image       TEXT,
     available   BOOLEAN        NOT NULL,
     category_id UUID           NOT NULL REFERENCES categories (id),
     created_at  TIMESTAMP      NOT NULL

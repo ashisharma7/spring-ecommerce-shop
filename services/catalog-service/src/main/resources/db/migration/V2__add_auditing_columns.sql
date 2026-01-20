@@ -1,0 +1,5 @@
+ALTER TABLE categories
+    ADD COLUMN updated_at TIMESTAMP NOT NULL;
+
+ALTER TABLE products
+    ADD COLUMN updated_at TIMESTAMP NOT NULL;

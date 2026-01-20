@@ -1,31 +1,32 @@
 package com.shop.catalog.domain.model;
 
 import com.shop.catalog.domain.exception.InvalidCategoryStateException;
+import com.shop.catalog.util.ValueValidators;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.jspecify.annotations.NonNull;
+import lombok.experimental.SuperBuilder;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "categories")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Getter @Builder
-public class Category {
+@Getter
+@SuperBuilder
+public class Category extends AuditableEntity {
 
     @Id
     @GeneratedValue
     private UUID id;
 
     @Column(nullable = false)
+    @Size(min = 3, max = 255, message = "Category name must be between 3 to 255 characters")
     private String name;
 
     @Column(nullable = false)
+    @Size(min = 5, max = 2000, message = "Category description must be between 5 to 2000 characters")
     private String description;
 
     @Column(name = "is_active", nullable = false)
@@ -35,61 +36,80 @@ public class Category {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private List<Category> subcategories;
+    private Set<Category> subcategories = new HashSet<>();
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private List<Product> products;
+    private Set<Product> products = new HashSet<>();
 
-    public static Category createCategory(String name, String description, Boolean isActive) {
-        return Category.builder()
-                .name(name)
-                .description(description)
-                .isActive(isActive)
-                .createdAt(Instant.now())
-                .build();
+    public void updateName(String name) {
+        if (ValueValidators.isNullOrBlank(name))
+            throw new InvalidCategoryStateException("Category name cannot be null or blank");
+        if (ValueValidators.isNotValidLength(name, 3, 255))
+            throw new InvalidCategoryStateException("Category name must be between 3 to 255 characters");
+        this.name = name;
     }
 
-    public static Category createCategory(@NotBlank String name,
-                                          @NotBlank String description,
-                                          @NonNull Boolean isActive,
-                                          @NonNull Category parent) {
-        Category category = createCategory(name, description, isActive);
-        parent.addSubCategory(category);
-        return category;
+    public void updateDescription(String description) {
+        if (ValueValidators.isNullOrBlank(description))
+            throw new InvalidCategoryStateException("Category description cannot be null or blank");
+        if (ValueValidators.isNotValidLength(description, 5, 2000))
+            throw new InvalidCategoryStateException("Category description must be between 5 to 2000 characters");
+        this.description = description;
     }
 
-    public static Category createCategory(@NotBlank String name, @NotBlank String description, @NonNull Boolean isActive,
-                                          @NotEmpty List<Category> subcategories) {
-        Category category = createCategory(name, description, isActive);
-        subcategories.forEach(category::addSubCategory);
-        return category;
+    public void updateIsActive(Boolean isActive) {
+        if (Objects.isNull(isActive))
+            throw new InvalidCategoryStateException("Category active status cannot be null");
+        this.isActive = isActive;
     }
 
-    public void addParent(@NonNull Category parent) {
-        if (this.parent != null) {
-            throw new InvalidCategoryStateException("Parent can't be overridden you need to remove current before adding another");
-        }
+    public void updateParent(Category parent) {
+        if (Objects.isNull(parent))
+            throw new InvalidCategoryStateException("Parent category cannot be updated as null, use removeParent() instead");
+        if (Objects.nonNull(this.parent))
+            this.parent.subcategories.remove(this);
         this.parent = parent;
+        this.parent.subcategories.add(this);
     }
 
     public void removeParent() {
-        if (this.parent == null) {
+        if (Objects.isNull(this.parent))
             throw new InvalidCategoryStateException("Category has no parent");
-        }
         this.parent.subcategories.remove(this);
         this.parent = null;
     }
 
-    public void addSubCategory(@NonNull Category subCategory) {
-        subCategory.addParent(this);
-        this.subcategories.add(subCategory);
+    public void addSubCategory(Category subCategory) {
+        if (Objects.isNull(subCategory))
+            throw new InvalidCategoryStateException("Subcategory to add cannot be null");
+        subCategory.updateParent(this);
     }
 
-    public void addProduct(@NonNull Product product) {
-        this.products.add(product.assignCategory(this));
+    public void addProduct(Product product) {
+        if (Objects.isNull(product))
+            throw new InvalidCategoryStateException("Product to add cannot be null");
+        product.updateCategory(this);
     }
+
+    @PrePersist
+    @PreUpdate
+    public void validate() {
+        // Validate name
+        if (ValueValidators.isNullOrBlank(name))
+            throw new InvalidCategoryStateException("Category name cannot be null or blank");
+        if (ValueValidators.isNotValidLength(name, 3, 255))
+            throw new InvalidCategoryStateException("Category name must be between 3 to 255 characters");
+
+        // Validate description
+        if (ValueValidators.isNullOrBlank(description))
+            throw new InvalidCategoryStateException("Category description cannot be null or blank");
+        if (ValueValidators.isNotValidLength(description, 5, 2000))
+            throw new InvalidCategoryStateException("Category description must be between 5 to 2000 characters");
+
+        //Validate isActive
+        if (Objects.isNull(isActive))
+            throw new InvalidCategoryStateException("Category active status cannot be null");
+    }
+
 }
